@@ -1,0 +1,126 @@
+# =============================================================================
+# RH Hume Project - Logging Configuration
+# =============================================================================
+
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+    
+  detailed:
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+    
+  json:
+    class: pythonjsonlogger.jsonlogger.JsonFormatter
+    format: "%(asctime)s %(name)s %(levelname)s %(message)s %(filename)s %(lineno)d"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: standard
+    stream: ext://sys.stdout
+    
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: detailed
+    filename: logs/app.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf-8
+    
+  error_file:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: logs/error.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf-8
+    
+  audit_file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: logs/audit.log
+    maxBytes: 52428800  # 50MB
+    backupCount: 10
+    encoding: utf-8
+
+loggers:
+  # Application loggers
+  src:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: false
+    
+  src.agent:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: false
+    
+  src.kafka:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  src.api:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  src.processing:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  jobs:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  # Audit logger (separate from app logs)
+  audit:
+    level: INFO
+    handlers: [audit_file]
+    propagate: false
+    
+  # Third-party loggers (quieter)
+  kafka:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+    
+  neo4j:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+    
+  httpx:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+    
+  uvicorn:
+    level: INFO
+    handlers: [console]
+    propagate: false
+    
+  uvicorn.error:
+    level: INFO
+    handlers: [console]
+    propagate: false
+    
+  uvicorn.access:
+    level: WARNING
+    handlers: [console]
+    propagate: false
+
+root:
+  level: INFO
+  handlers: [console, file, error_file]

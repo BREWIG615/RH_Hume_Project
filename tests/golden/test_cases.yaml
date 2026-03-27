@@ -1,0 +1,69 @@
+# Golden Test Cases for Agent Quality
+# These test cases verify the agent produces expected outputs
+
+test_cases:
+  - id: facility_status_simple
+    query: "What is the status of Kadena?"
+    expected_tools: ["get_facility_status"]
+    expected_in_response:
+      - "Kadena"
+      - "status"
+    max_iterations: 3
+
+  - id: route_finding
+    query: "Find alternate routes to Kadena from Yokosuka"
+    expected_tools: ["find_alternate_routes"]
+    expected_in_response:
+      - "route"
+      - "Kadena"
+    max_iterations: 5
+
+  - id: inventory_runway
+    query: "What is the supply runway for critical parts at Guam?"
+    expected_tools: ["calculate_inventory_runway"]
+    expected_in_response:
+      - "days"
+      - "inventory"
+    max_iterations: 4
+
+  - id: emotional_summary
+    query: "Which facilities are showing elevated stress levels?"
+    expected_tools: ["get_emotional_summary"]
+    expected_in_response:
+      - "anxiety"
+      - "facility"
+    max_iterations: 4
+
+  - id: multi_step_analysis
+    query: "What is the impact of Taiwan Strait closure on Kadena?"
+    expected_tools: ["get_route_status", "get_facility_status"]
+    expected_in_response:
+      - "Taiwan Strait"
+      - "impact"
+      - "Kadena"
+    max_iterations: 8
+
+  - id: report_generation
+    query: "Generate a daily supply posture report"
+    expected_tools: ["generate_report"]
+    expected_in_response:
+      - "report"
+      - "supply"
+    max_iterations: 5
+
+  - id: alert_triage
+    query: "What are the highest priority alerts?"
+    expected_tools: ["get_pending_alerts"]
+    expected_in_response:
+      - "alert"
+      - "priority"
+    max_iterations: 3
+
+  - id: complex_analysis
+    query: "Given the Taiwan Strait denial, what are our options for resupplying Kadena and what is the emotional state of personnel there?"
+    expected_tools: ["find_alternate_routes", "get_facility_status", "get_emotional_summary"]
+    expected_in_response:
+      - "route"
+      - "Kadena"
+      - "emotional"
+    max_iterations: 10

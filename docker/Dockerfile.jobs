@@ -1,0 +1,36 @@
+# =============================================================================
+# Dockerfile.jobs - Batch Processing Jobs
+# =============================================================================
+
+FROM python:3.12-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY pyproject.toml ./
+RUN pip install --no-cache-dir .
+
+# Copy application code
+COPY src/ ./src/
+COPY jobs/ ./jobs/
+COPY config/ ./config/
+
+# Create non-root user
+RUN useradd --create-home --shell /bin/bash appuser \
+    && chown -R appuser:appuser /app
+USER appuser
+
+# Default command (show help)
+CMD ["python", "-m", "jobs.runner", "--help"]

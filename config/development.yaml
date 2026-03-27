@@ -1,0 +1,47 @@
+# =============================================================================
+# RH Hume Project - Development Configuration
+# =============================================================================
+# Overrides for development environment.
+# =============================================================================
+
+app:
+  environment: "development"
+
+neo4j:
+  uri: "bolt://localhost:7687"
+
+kafka:
+  bootstrap_servers: "localhost:9092"
+
+processing:
+  engine: "local"
+  batch_size: 100  # Smaller batches for faster iteration
+
+agent:
+  llm:
+    temperature: 0.2  # Slightly more creative for testing
+  guardrails:
+    require_confirmation: false  # Faster testing
+    rate_limit_per_minute: 60  # Higher limit for dev
+
+api:
+  cors_origins:
+    - "http://localhost:*"
+    - "http://127.0.0.1:*"
+
+feature_flags:
+  kafka_enabled: true
+  relationship_versioning: true
+  source_reputation_learning: true
+  scenario_branching: true  # Enable for testing
+
+logging:
+  level: "DEBUG"
+
+synthetic_data:
+  counts:
+    # Smaller counts for faster iteration
+    facilities: 10
+    assets: 100
+    routes: 15
+    communications: 1000

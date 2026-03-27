@@ -1,0 +1,100 @@
+// Qlik Load Script for RH Hume Project
+// =====================================
+
+SET ThousandSep=',';
+SET DecimalSep='.';
+SET MoneyThousandSep=',';
+SET MoneyDecimalSep='.';
+SET MoneyFormat='$#,##0.00;-$#,##0.00';
+SET TimeFormat='h:mm:ss TT';
+SET DateFormat='M/D/YYYY';
+SET TimestampFormat='M/D/YYYY h:mm:ss[.fff] TT';
+
+// =====================================
+// Data Connections
+// =====================================
+
+// Presentation layer data
+LET vDataPath = 'lib://DataFiles/presentation/';
+
+// =====================================
+// Facilities
+// =====================================
+Facilities:
+LOAD
+    id,
+    name,
+    facility_type,
+    latitude,
+    longitude,
+    region_id,
+    operational_status,
+    total_assets,
+    fmc_count
+FROM [$(vDataPath)facility_summary.parquet]
+(parquet);
+
+// =====================================
+// Assets
+// =====================================
+Assets:
+LOAD
+    id,
+    name,
+    asset_type,
+    category,
+    status,
+    facility_id,
+    serial_number
+FROM [$(vDataPath)assets.parquet]
+(parquet);
+
+// =====================================
+// Routes
+// =====================================
+Routes:
+LOAD
+    id,
+    name,
+    origin_id,
+    destination_id,
+    distance_miles,
+    typical_duration_hours,
+    route_type,
+    access_status,
+    risk_score
+FROM [$(vDataPath)routes.parquet]
+(parquet);
+
+// =====================================
+// Communications (with Hume scores)
+// =====================================
+Communications:
+LOAD
+    id,
+    content,
+    facility_id,
+    sender,
+    channel,
+    timestamp,
+    hume_status,
+    hume_anxiety,
+    hume_urgency,
+    hume_confusion,
+    hume_fear
+FROM [$(vDataPath)communications.parquet]
+(parquet);
+
+// =====================================
+// Chokepoints
+// =====================================
+Chokepoints:
+LOAD
+    id,
+    name,
+    latitude,
+    longitude,
+    strategic_importance,
+    current_status
+FROM [$(vDataPath)chokepoints.parquet]
+(parquet);

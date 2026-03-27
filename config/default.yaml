@@ -1,0 +1,296 @@
+# =============================================================================
+# RH Hume Project - Default Configuration
+# =============================================================================
+# Base configuration for all environments.
+# Environment-specific files (development.yaml, production.yaml) override these values.
+# Local overrides go in local.yaml (gitignored).
+# =============================================================================
+
+app:
+  name: "rh_hume_project"
+  version: "0.1.0"
+  environment: "development"
+
+# -----------------------------------------------------------------------------
+# Neo4j Configuration
+# -----------------------------------------------------------------------------
+neo4j:
+  uri: "bolt://localhost:7687"
+  database: "neo4j"
+  # user and password come from environment variables: NEO4J_USER, NEO4J_PASSWORD
+  connection_pool_size: 50
+  connection_timeout: 30
+
+# -----------------------------------------------------------------------------
+# Kafka Configuration
+# -----------------------------------------------------------------------------
+kafka:
+  bootstrap_servers: "localhost:9092"
+  
+  consumer:
+    group_id_prefix: "hume-logistics"
+    auto_offset_reset: "earliest"
+    enable_auto_commit: true
+    auto_commit_interval_ms: 5000
+    max_poll_records: 500
+    session_timeout_ms: 30000
+  
+  producer:
+    acks: "all"
+    retries: 3
+    retry_backoff_ms: 100
+    batch_size: 16384
+    linger_ms: 5
+  
+  topics:
+    raw_ingest: "raw.ingest"
+    hume_requests: "hume.requests"
+    hume_results: "hume.results"
+    state_changes: "state.changes"
+    alerts_created: "alerts.created"
+    graph_updates: "graph.updates"
+    narrative_requests: "narrative.requests"
+
+# -----------------------------------------------------------------------------
+# Data Paths
+# -----------------------------------------------------------------------------
+data_paths:
+  raw: "data/raw"
+  processed: "data/processed"
+  presentation: "data/presentation"
+  synthetic: "data/synthetic"
+  exports: "data/exports"
+
+# -----------------------------------------------------------------------------
+# Processing Configuration
+# -----------------------------------------------------------------------------
+processing:
+  engine: "local"  # "local" or "databricks"
+  batch_size: 1000
+  
+  delta_lake:
+    enabled: true
+    retention_hours: 168  # 7 days
+    
+  schema_validation:
+    enabled: true
+    on_drift: "alert"  # "alert", "halt", or "ignore"
+
+# -----------------------------------------------------------------------------
+# Hume AI Configuration
+# -----------------------------------------------------------------------------
+hume:
+  # API key from environment: HUME_API_KEY
+  base_url: "https://api.hume.ai/v0"
+  batch_size: 50
+  retry_max: 3
+  retry_delay_seconds: 5
+  processing_interval_minutes: 15
+  timeout_seconds: 30
+
+# -----------------------------------------------------------------------------
+# Emotional Thresholds
+# -----------------------------------------------------------------------------
+emotional_thresholds:
+  # Three-tier threshold system: flag < alert < escalate
+  flag:
+    anxiety: 0.4
+    urgency: 0.5
+    confusion: 0.4
+    fear: 0.3
+    frustration: 0.4
+    
+  alert:
+    anxiety: 0.6
+    urgency: 0.7
+    confusion: 0.5
+    fear: 0.4
+    frustration: 0.6
+    
+  escalate:
+    anxiety: 0.8
+    urgency: 0.85
+    confusion: 0.7
+    fear: 0.4
+    frustration: 0.8
+    
+  # Compound rules (multiple signals together)
+  compound_rules:
+    - name: "multi_signal_stress"
+      conditions:
+        anxiety: 0.5
+        confusion: 0.4
+        urgency: 0.5
+      action: "escalate"
+      priority: 0.95
+      
+    - name: "fear_response"
+      conditions:
+        fear: 0.4
+      action: "escalate"
+      priority: 1.0
+
+# -----------------------------------------------------------------------------
+# Agent Configuration
+# -----------------------------------------------------------------------------
+agent:
+  llm:
+    provider: "anthropic"  # "anthropic" or "bedrock"
+    model: "claude-sonnet-4-20250514"
+    max_tokens: 4096
+    temperature: 0.1
+    
+  embedding:
+    provider: "openai"  # "openai" or "local"
+    model: "text-embedding-3-small"
+    # For local: model: "BAAI/bge-large-en-v1.5"
+    
+  react:
+    max_iterations: 10
+    planning_threshold: 2  # Number of tools that triggers planning phase
+    
+  guardrails:
+    read_only: true
+    max_results: 100
+    require_confirmation: false
+    rate_limit_per_minute: 30
+    timeout_seconds: 60
+    max_tokens_per_request: 4096
+    
+  tools:
+    enabled:
+      - "execute_cypher"
+      - "get_facility_status"
+      - "get_asset_status"
+      - "get_route_status"
+      - "calculate_inventory_runway"
+      - "find_alternate_routes"
+      - "get_pending_alerts"
+      - "generate_report"
+      - "get_emotional_summary"
+      
+  vector_indexes:
+    entity_summary:
+      name: "entity_summary_index"
+      dimensions: 1536
+      similarity_function: "cosine"
+    report:
+      name: "report_index"
+      dimensions: 1536
+      similarity_function: "cosine"
+    document_chunk:
+      name: "document_chunk_index"
+      dimensions: 1536
+      similarity_function: "cosine"
+
+# -----------------------------------------------------------------------------
+# Report Templates
+# -----------------------------------------------------------------------------
+reports:
+  templates:
+    - name: "daily_supply_posture"
+      title: "Daily Supply Posture Report"
+      sections:
+        - "executive_summary"
+        - "fleet_readiness"
+        - "critical_shortages"
+        - "route_status"
+        - "emotional_indicators"
+        - "recommendations"
+        
+    - name: "facility_status"
+      title: "Facility Status Report"
+      sections:
+        - "facility_overview"
+        - "asset_status"
+        - "inventory_status"
+        - "emotional_health"
+        - "pending_work_orders"
+        
+    - name: "route_assessment"
+      title: "Route Assessment Report"
+      sections:
+        - "route_overview"
+        - "waypoint_status"
+        - "risk_factors"
+        - "alternatives"
+        
+    - name: "alert_summary"
+      title: "Alert Summary Report"
+      sections:
+        - "priority_alerts"
+        - "alert_trends"
+        - "resolution_status"
+        
+    - name: "inventory_runway"
+      title: "Inventory Runway Report"
+      sections:
+        - "critical_items"
+        - "facility_summary"
+        - "incoming_shipments"
+
+# -----------------------------------------------------------------------------
+# API Configuration
+# -----------------------------------------------------------------------------
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+  rate_limit:
+    requests_per_minute: 60
+
+# -----------------------------------------------------------------------------
+# Feature Flags
+# -----------------------------------------------------------------------------
+feature_flags:
+  kafka_enabled: true
+  relationship_versioning: true
+  source_reputation_learning: true
+  scenario_branching: false
+  emotional_aggregation: true
+  narrative_generation: true
+
+# -----------------------------------------------------------------------------
+# Logging
+# -----------------------------------------------------------------------------
+logging:
+  config_file: "config/logging.yaml"
+  level: "INFO"
+
+# -----------------------------------------------------------------------------
+# Synthetic Data Generation
+# -----------------------------------------------------------------------------
+synthetic_data:
+  seed: 42
+  
+  counts:
+    facilities: 15
+    assets: 500
+    routes: 25
+    waypoints: 100
+    chokepoints: 5
+    parts: 200
+    work_orders: 150
+    communications: 5000
+    disruptions: 10
+    
+  history_days: 90
+  
+  data_quality:
+    incomplete_percentage: 15
+    conflicting_percentage: 10
+    anomalous_percentage: 5
+    
+  scenarios:
+    baseline:
+      routes_denied: 0
+      emotional_range: [0.1, 0.3]
+      fmc_percentage: 85
+      
+    disrupted:
+      routes_denied: 2
+      emotional_range: [0.4, 0.8]
+      fmc_percentage: 70
+      affected_facilities: ["Kadena", "Yokosuka"]

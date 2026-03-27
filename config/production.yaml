@@ -1,0 +1,56 @@
+# =============================================================================
+# RH Hume Project - Production Configuration
+# =============================================================================
+# Production configuration template.
+# Secrets should come from environment variables or secrets manager.
+# =============================================================================
+
+app:
+  environment: "production"
+
+neo4j:
+  uri: "${NEO4J_URI}"  # From environment/secrets manager
+  database: "neo4j"
+  connection_pool_size: 100
+  connection_timeout: 60
+
+kafka:
+  bootstrap_servers: "${KAFKA_BOOTSTRAP_SERVERS}"
+  consumer:
+    group_id_prefix: "hume-logistics-prod"
+  producer:
+    acks: "all"
+    retries: 5
+
+processing:
+  engine: "databricks"
+  batch_size: 5000
+
+hume:
+  batch_size: 100
+  retry_max: 5
+  timeout_seconds: 60
+
+agent:
+  llm:
+    provider: "bedrock"  # Or anthropic with IL5 considerations
+    temperature: 0.0  # Deterministic for production
+  guardrails:
+    require_confirmation: true
+    rate_limit_per_minute: 100
+    timeout_seconds: 120
+
+api:
+  cors_origins:
+    - "https://your-production-domain.com"
+  rate_limit:
+    requests_per_minute: 120
+
+feature_flags:
+  kafka_enabled: true
+  relationship_versioning: true
+  source_reputation_learning: true
+  scenario_branching: false  # Disable until validated
+
+logging:
+  level: "INFO"
