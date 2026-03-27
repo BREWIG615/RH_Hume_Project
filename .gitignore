@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checking / Linting
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data directories
+data/raw/*
+data/processed/*
+data/presentation/*
+data/synthetic/*
+data/exports/*
+!data/*/.gitkeep
+
+# Logs
+logs/
+*.log
+
+# Environment and secrets
+.env
+.env.local
+docker/.env
+*.pem
+*.key
+
+# Qlik app files
+qlik/app/*.qvf
+
+# Local config overrides
+config/local.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temp
+tmp/
+*.tmp
